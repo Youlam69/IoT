@@ -1,0 +1,51 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/jammy64"
+  
+  config.vm.define "yourloginS" do |server|
+    server.vm.hostname = "yourloginS"
+    server.vm.network "private_network", ip: "192.168.56.110"
+    
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = "yourloginS"
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+
+    server.vm.provision "shell", inline: <<-SHELL
+      echo "🚀 Installing K3s Server for Part 2..."
+      # تفعيل K3s مع Traefik، وتعطيل metrics-server لتوفير الرام
+      curl -sfL https://get.k3s.io | sh -s - server \
+        --node-ip=192.168.56.110 \
+        --flannel-iface=enp0s8 \
+        --write-kubeconfig-mode "644" \
+        --disable metrics-server
+      
+      # إعداد الصلاحيات للمستخدم vagrant
+      mkdir -p /home/vagrant/.kube
+      cp /etc/rancher/k3s/k3s.yaml /home/vagrant/.kube/config
+      chown -R vagrant:vagrant /home/vagrant/.kube
+
+      export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+      echo "⏳ Waiting for K3s API to be fully active..."
+      sleep 15
+      while ! kubectl get nodes >/dev/null 2>&1; do
+        sleep 5
+      done
+
+      echo "⏳ Waiting for Traefik to deploy (This prevents the hanging issue!)..."
+      # نتسناو حتى يبان Traefik فـ K3s
+      while ! kubectl get deployment traefik -n kube-system >/dev/null 2>&1; do
+        sleep 5
+      done
+      # نتسناو Traefik حتى يولي Ready
+      kubectl -n kube-system wait --for=condition=Ready pods -l "app.kubernetes.io/name=traefik" --timeout=300s
+
+      echo "📦 Applying Applications and Ingress automatically..."
+      # تطبيق ملف الإعدادات مباشرة من المجلد المشترك
+      kubectl apply -f /vagrant/confs/app.yaml
+
+      echo "✅ Provisioning Complete! The cluster is ready."
+    SHELL
+  end
+end

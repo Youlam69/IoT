@@ -1,0 +1,142 @@
+# ==========================================
+# Application 1 (app1.com - 1 Replica)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-one
+  template:
+    metadata:
+      labels:
+        app: app-one
+    spec:
+      containers:
+      - name: app-one
+        image: nginx:alpine
+        command: ["/bin/sh", "-c"]
+        args: ["echo '<!DOCTYPE html><html><body style=\"background-color:#e0f7fa; color:#006064; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; flex-direction:column;\"><h1>🚀 Welcome to APP ONE</h1><h2>Host: app1.com</h2></body></html>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-one-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: app-one
+---
+# ==========================================
+# Application 2 (app2.com - 3 Replicas)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-two
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: app-two
+  template:
+    metadata:
+      labels:
+        app: app-two
+    spec:
+      containers:
+      - name: app-two
+        image: nginx:alpine
+        command: ["/bin/sh", "-c"]
+        args: ["echo '<!DOCTYPE html><html><body style=\"background-color:#e8f5e9; color:#1b5e20; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; flex-direction:column;\"><h1>🌱 Welcome to APP TWO (3 Replicas)</h1><h2>Host: app2.com</h2></body></html>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-two-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: app-two
+---
+# ==========================================
+# Application 3 (Default Host - 1 Replica)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-three
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-three
+  template:
+    metadata:
+      labels:
+        app: app-three
+    spec:
+      containers:
+      - name: app-three
+        image: nginx:alpine
+        command: ["/bin/sh", "-c"]
+        args: ["echo '<!DOCTYPE html><html><body style=\"background-color:#f3e5f5; color:#4a148c; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; flex-direction:column;\"><h1>🏠 Welcome to APP THREE (Default)</h1><h2>Unknown Host Routing</h2></body></html>' > /usr/share/nginx/html/index.html && nginx -g 'daemon off;'"]
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-three-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: app-three
+---
+# ==========================================
+# Ingress Routing Rules
+# ==========================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  defaultBackend:
+    service:
+      name: app-three-service
+      port:
+        number: 80
+  rules:
+  - host: app1.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-one-service
+            port:
+              number: 80
+  - host: app2.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: app-two-service
+            port:
+              number: 80
