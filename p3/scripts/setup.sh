@@ -3,6 +3,9 @@
 set -eE
 
 DIR=$(dirname "$0")/..
+mkdir -p ~/.kube
+k3d kubeconfig write iot --output ~/.kube/config-iot
+export KUBECONFIG=~/.kube/config-iot
 
 # A bare `kubectl wait` that times out only ever says "timed out waiting for
 # the condition", which says nothing about why. Dump the state instead.
