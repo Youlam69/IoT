@@ -5,11 +5,6 @@ set -e
 # The private-network interface, found from the IP Vagrant put on it: modern
 # distributions use predictable names (enp0s8, ...) where older ones use eth1.
 IFACE=$(ip -o -4 addr show | awk -v ip="$NODE_IP" '$4 ~ "^"ip"/" {print $2; exit}')
-if [ -z "$IFACE" ]; then
-  echo "ERROR: no interface carries $NODE_IP" >&2
-  ip -o -4 addr show >&2
-  exit 1
-fi
 echo "==> Private network: $NODE_IP on $IFACE"
 
 echo "==> Installing K3s server"

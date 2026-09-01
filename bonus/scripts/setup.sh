@@ -6,7 +6,7 @@ set -e
 DIR=$(cd "$(dirname "$0")/../.." && pwd)
 
 echo "==> Creating the k3d cluster (ports 80 and 443 published)"
-k3d cluster list --no-headers 2>/dev/null | awk '{print $1}' | grep -qx iot || \
+k3d cluster list | grep -q '^iot ' || \
   k3d cluster create --config "$DIR/bonus/confs/k3d-cluster.yaml"
 kubectl config use-context k3d-iot
 
