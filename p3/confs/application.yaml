@@ -1,0 +1,25 @@
+# Tells Argo CD to deploy whatever is in the GitHub repo into the dev namespace.
+# Changing the image tag there (v1 <-> v2) and pushing is enough to redeploy.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wil-playground
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/Youlam69/aelyakou-iot.git
+    targetRevision: main
+    path: .
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  syncPolicy:
+    automated:
+      prune: true      # delete what disappears from git
+      selfHeal: true   # undo changes made directly on the cluster
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,11 @@
+.vagrant/
+*.log
+
+node-token
+**/shared/
+
+kubeconfig
+*.kubeconfig
+.env
+
+README.md

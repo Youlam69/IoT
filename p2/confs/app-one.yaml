@@ -1,0 +1,46 @@
+# App One - 1 replica
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-one
+  template:
+    metadata:
+      labels:
+        app: app-one
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 80
+          # Write a small page, then start nginx.
+          # $(hostname) is the pod name, so you can see which replica answered.
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cat > /usr/share/nginx/html/index.html <<HTML
+              <html><body style="background:#e0f7fa; font-family:sans-serif; text-align:center">
+                <h1>App One</h1>
+                <p>Host: app1.com</p>
+                <p>Pod: $(hostname)</p>
+              </body></html>
+              HTML
+              nginx -g "daemon off;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-one-service
+spec:
+  selector:
+    app: app-one
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

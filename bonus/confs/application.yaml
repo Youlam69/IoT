@@ -1,0 +1,26 @@
+# Same as p3/confs/application.yaml, but reading from the local GitLab.
+# The repo is reached through GitLab's in-cluster Service, so no DNS is needed.
+# The project must be public; if it is private, use gitlab-repo-credentials.yaml.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: wil-playground
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181/root/aelyakou-iot.git
+    targetRevision: main
+    path: .
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

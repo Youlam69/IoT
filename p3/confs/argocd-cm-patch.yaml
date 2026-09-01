@@ -1,0 +1,3 @@
+# Argo CD checks git every 3 minutes by default. 30s makes the demo quicker.
+data:
+  timeout.reconciliation: "30s"

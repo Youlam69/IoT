@@ -1,0 +1,16 @@
+# k3d cluster used by scripts/setup.sh
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: iot
+servers: 1
+agents: 0
+options:
+  k3s:
+    extraArgs:
+      - arg: --disable=metrics-server
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true

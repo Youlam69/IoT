@@ -1,0 +1,39 @@
+# Bonus: a bigger machine to host GitLab next to the Part 3 cluster.
+#   aelyakouB  192.168.56.120  4 CPUs / 8 GB
+#
+# If your own VM already has 8 GB free you can skip this file and just run
+# p3/scripts/install.sh then bonus/scripts/setup.sh.
+
+LOGIN   = "aelyakou"
+BOX     = "bento/ubuntu-24.04"
+VM_NAME = "#{LOGIN}B"
+VM_IP   = "192.168.56.120"
+CPUS    = 4
+MEMORY  = 8192
+
+Vagrant.configure("2") do |config|
+  config.vm.box = BOX
+  config.vm.box_check_update = false
+  config.ssh.insert_key = true
+
+  config.vm.define VM_NAME, primary: true do |vm|
+    vm.vm.hostname = VM_NAME
+    vm.vm.network "private_network", ip: VM_IP
+
+    # The whole repo, so the bonus scripts can reach p3/confs and p3/app-repo
+    vm.vm.synced_folder "..", "/iot"
+
+    vm.vm.provider "virtualbox" do |vb|
+      vb.name   = VM_NAME
+      vb.cpus   = CPUS
+      vb.memory = MEMORY
+    end
+
+    # Tools only: installing GitLab is long, so it stays a separate step
+    vm.vm.provision "shell", path: "../p3/scripts/install.sh"
+
+    vm.vm.provision "shell", inline: <<-SHELL
+      echo "Tools installed. Now run: vagrant ssh, then /iot/bonus/scripts/setup.sh"
+    SHELL
+  end
+end

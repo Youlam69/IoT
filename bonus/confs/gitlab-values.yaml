@@ -1,0 +1,45 @@
+# Helm values for the official GitLab chart, trimmed so it fits on a
+# single-node k3d cluster: plain HTTP on *.gitlab.local, Traefik as the
+# ingress, and no cert-manager, nginx-ingress, Prometheus, Grafana,
+# runner or registry.
+global:
+  hosts:
+    domain: gitlab.local
+    https: false
+  ingress:
+    class: traefik
+    configureCertmanager: false
+    tls:
+      enabled: false
+  kas:
+    enabled: false
+
+certmanager:
+  install: false
+nginx-ingress:
+  enabled: false
+prometheus:
+  install: false
+grafana:
+  enabled: false
+gitlab-runner:
+  install: false
+registry:
+  enabled: false
+
+# One replica each, and small CPU requests so everything fits on one node.
+# The chart's defaults ask for far more than this cluster has.
+gitlab:
+  webservice:
+    minReplicas: 1
+    maxReplicas: 1
+    resources:
+      requests: { cpu: 200m, memory: 1500Mi }
+  sidekiq:
+    minReplicas: 1
+    maxReplicas: 1
+    resources:
+      requests: { cpu: 100m, memory: 800Mi }
+  gitlab-shell:
+    minReplicas: 1
+    maxReplicas: 1
