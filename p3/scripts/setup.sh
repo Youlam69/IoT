@@ -3,9 +3,6 @@
 set -eE
 
 DIR=$(dirname "$0")/..
-mkdir -p ~/.kube
-k3d kubeconfig write iot --output ~/.kube/config-iot
-export KUBECONFIG=~/.kube/config-iot
 
 # A bare `kubectl wait` that times out only ever says "timed out waiting for
 # the condition", which says nothing about why. Dump the state instead.
@@ -46,6 +43,10 @@ echo "==> Creating the k3d cluster"
 k3d cluster list --no-headers 2>/dev/null | awk '{print $1}' | grep -qx iot || \
   k3d cluster create --config "$DIR/confs/k3d-cluster.yaml"
 kubectl config use-context k3d-iot
+
+mkdir -p ~/.kube
+k3d kubeconfig write iot --output ~/.kube/config-iot
+export KUBECONFIG=~/.kube/config-iot
 
 echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/confs/namespaces.yaml"
