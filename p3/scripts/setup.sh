@@ -5,9 +5,12 @@ set -e
 DIR=$(dirname "$0")/..
 
 echo "==> Creating the k3d cluster"
-k3d cluster list --no-headers 2>/dev/null | awk '{print $1}' | grep -qx iot || \
-  k3d cluster create --config "$DIR/confs/k3d-cluster.yaml"
-kubectl config use-context k3d-iot
+k3d cluster list iot >/dev/null 2>&1 || k3d cluster create --config "$DIR/confs/k3d-cluster.yaml"
+
+# Get kubeconfig properly for the current user without touching /etc/rancher directly via k3d merge bug
+mkdir -p ~/.kube
+k3d kubeconfig write iot --output ~/.kube/config-iot
+export KUBECONFIG=~/.kube/config-iot
 
 echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/confs/namespaces.yaml"

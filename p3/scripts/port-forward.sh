@@ -2,6 +2,8 @@
 # Opens the Argo CD UI and the application on localhost. Press Ctrl-C to stop.
 set -e
 
+export KUBECONFIG=$HOME/.kube/config-iot
+
 kubectl -n argocd port-forward svc/argocd-server 8080:443 &
 kubectl -n dev port-forward svc/wil-playground 8888:8888 &
 
