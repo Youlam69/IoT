@@ -49,10 +49,10 @@ vagrant ssh aelyakouSW
 Two things worth explaining at the defense:
 
 - **K3s is pinned to the private network.** `--node-ip` and
-  `--flannel-iface=eth1` keep the cluster off `eth0`, the NAT interface
-  Vagrant uses for SSH. `eth1` is the private interface on
-  `bento/ubuntu-24.04`; on a box that uses predictable names it would be
-  `enp0s8`, so check with `ip a` if you change the box.
+  `--flannel-iface` keep the cluster off the NAT interface Vagrant uses for
+  SSH. The scripts do not hardcode the interface name — they look up whichever
+  interface carries the machine's private IP, so the same script works on a box
+  that names it `eth1` and on one that uses predictable names (`enp0s8`).
 - **kubectl is installed separately.** K3s embeds its own, but the subject
   asks for kubectl, so the scripts download it to `/usr/local/bin`.
 

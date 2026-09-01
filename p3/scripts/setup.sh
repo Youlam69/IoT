@@ -5,14 +5,18 @@ set -e
 DIR=$(dirname "$0")/..
 
 echo "==> Creating the k3d cluster"
-k3d cluster list iot >/dev/null 2>&1 || k3d cluster create --config "$DIR/confs/k3d-cluster.yaml"
+k3d cluster list --no-headers 2>/dev/null | awk '{print $1}' | grep -qx iot || \
+  k3d cluster create --config "$DIR/confs/k3d-cluster.yaml"
 kubectl config use-context k3d-iot
 
 echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/confs/namespaces.yaml"
 
 echo "==> Installing Argo CD"
-kubectl apply -n argocd \
+# --server-side is required: the ApplicationSet CRD is ~340 KB, and a plain
+# client-side apply stores it in the last-applied-configuration annotation,
+# which the API server caps at 256 KB.
+kubectl apply --server-side --force-conflicts -n argocd \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Argo CD checks git every 3 minutes by default; 30s makes the demo quicker

@@ -4,7 +4,7 @@
 GitHub repository**, because `p3/confs/application.yaml` points at:
 
 ```
-repoURL: https://github.com/Youlam69/aelyakou-iot.git
+repoURL: https://github.com/EldritchGriffin/aelyakou-iot.git
 path:    .
 ```
 
@@ -20,7 +20,7 @@ cd p3/app-repo
 git init -b main
 git add deployment.yaml service.yaml switch-version.sh README.md
 git commit -m "playground v1"
-git remote add origin git@github.com:Youlam69/aelyakou-iot.git
+git remote add origin git@github.com:EldritchGriffin/aelyakou-iot.git
 git push -u origin main
 ```
 

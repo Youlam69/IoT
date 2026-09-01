@@ -40,7 +40,7 @@ the browser warning.
 ## The v1 → v2 demo
 
 The manifests Argo CD watches live in a **separate public repo**,
-<https://github.com/Youlam69/aelyakou-iot> — its name contains the login, as
+<https://github.com/EldritchGriffin/aelyakou-iot> — its name contains the login, as
 the subject requires. The files to push there are in
 [`app-repo/`](app-repo); see [`app-repo/README.md`](app-repo/README.md).
 
