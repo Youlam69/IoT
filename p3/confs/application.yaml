@@ -9,7 +9,7 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/Youlam69/aelyakou-iot.git
+    repoURL: https://github.com/EldritchGriffin/aelyakou-iot
     targetRevision: main
     path: .
 
