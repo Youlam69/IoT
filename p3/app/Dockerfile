@@ -1,6 +1,5 @@
-# The build stage runs on the host's own architecture ($BUILDPLATFORM) and
-# cross-compiles for the target, so linux/amd64 and linux/arm64 both build on
-# an arm64 machine with no QEMU involved.
+# The build stage runs natively and cross-compiles, so amd64 and arm64
+# both build on one machine with no QEMU.
 FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS build
 ARG TARGETARCH
 ARG VERSION=v1

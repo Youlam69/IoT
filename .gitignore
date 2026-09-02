@@ -1,5 +1,5 @@
-# Vagrant's per-machine state
+# Vagrant state
 .vagrant/
 
-# p1: the server drops its K3s node token here for the worker to pick up
+# p1: the K3s join token the server shares with the worker
 p1/shared/

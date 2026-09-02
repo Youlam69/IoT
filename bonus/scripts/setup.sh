@@ -1,6 +1,6 @@
 #!/bin/bash
-# Builds the Part 3 lab on top of a GitLab running inside the cluster.
-# Run p3/scripts/install.sh first. GitLab needs ~8 GB of RAM and 10-20 minutes.
+# Part 3 on top of a GitLab running in the cluster. Run p3/scripts/install.sh
+# first. GitLab needs ~8 GB of RAM and 10-20 minutes.
 set -e
 
 DIR=$(cd "$(dirname "$0")/../.." && pwd)
@@ -9,10 +9,7 @@ echo "==> Installing helm"
 command -v helm >/dev/null || \
   curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sudo bash
 
-# Same published ports as Part 3, plus port 80 for the GitLab Ingress:
-#   localhost      -> 80    -> Traefik -> GitLab
-#   localhost:8080 -> 30080 -> argocd-server       (the UI)
-#   localhost:8888 -> 30888 -> aelyakou-playground (the application)
+# Published by k3d: localhost -> GitLab, :8080 -> Argo CD, :8888 -> the app
 echo "==> Creating the k3d cluster"
 k3d cluster list | grep -q '^iot ' || k3d cluster create iot -a 1 \
   -p "80:80@loadbalancer" \
@@ -28,7 +25,9 @@ kubectl create namespace gitlab --dry-run=client -o yaml | kubectl apply -f -
 echo "==> Installing GitLab with Helm (go get a coffee)"
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update gitlab
-helm upgrade --install gitlab gitlab/gitlab --namespace gitlab \
+# Pinned: chart 10.x dropped the bundled PostgreSQL, Redis and object storage
+# and requires them as external services. 9.11.12 is the last self-contained one.
+helm upgrade --install gitlab gitlab/gitlab --version 9.11.12 --namespace gitlab \
   --values "$DIR/bonus/confs/gitlab-values.yaml" --timeout 30m --wait
 
 echo "==> Installing Argo CD"

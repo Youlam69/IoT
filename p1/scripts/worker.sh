@@ -1,10 +1,9 @@
 #!/bin/bash
-# Installs K3s in agent (worker) mode and joins the server.
-# The K3s installer symlinks kubectl into /usr/local/bin, so it is available here too.
+# Installs K3s in agent mode and joins the server.
+# No kubectl install here: the K3s installer symlinks its own.
 set -e
 
-# The private-network interface, found from the IP Vagrant put on it: modern
-# distributions use predictable names (enp0s8, ...) where older ones use eth1.
+# The interface holding the private IP (eth1 or enp0s8, depending on the box)
 IFACE=$(ip -o -4 addr show | awk -v ip="$NODE_IP" '$4 ~ "^"ip"/" {print $2; exit}')
 echo "==> Private network: $NODE_IP on $IFACE"
 

@@ -1,8 +1,5 @@
-# The three applications the Ingress routes between.
-#
-# Each one is nginx serving a single-line page. The page prints $(hostname),
-# which inside a pod is the pod's own name - that is what makes app-two's
-# three replicas visible when you repeat a request.
+# The three applications. Each is nginx serving a one-line page; $(hostname)
+# is the pod name, which is what makes app-two's replicas visible.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

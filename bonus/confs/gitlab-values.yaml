@@ -1,7 +1,5 @@
-# Helm values for the official GitLab chart, trimmed so it fits on a
-# single-node k3d cluster: plain HTTP on *.gitlab.local, Traefik as the
-# ingress, and no cert-manager, nginx-ingress, Prometheus, Grafana,
-# runner or registry.
+# GitLab chart values, trimmed for a single-node cluster: plain HTTP on
+# *.gitlab.local, k3s's Traefik as the ingress, and none of the optional parts.
 global:
   hosts:
     domain: gitlab.local
@@ -14,21 +12,17 @@ global:
   kas:
     enabled: false
 
-certmanager:
-  install: false
+installCertmanager: false
 nginx-ingress:
+  enabled: false
+registry:
   enabled: false
 prometheus:
   install: false
-grafana:
-  enabled: false
 gitlab-runner:
   install: false
-registry:
-  enabled: false
 
-# One replica each, and small CPU requests so everything fits on one node.
-# The chart's defaults ask for far more than this cluster has.
+# One replica each and small requests, so it fits on one node.
 gitlab:
   webservice:
     minReplicas: 1

@@ -1,5 +1,4 @@
-# Tells Argo CD to deploy whatever is in the GitHub repo into the dev namespace.
-# Changing the image tag there (v1 <-> v2) and pushing is enough to redeploy.
+# What Argo CD deploys into dev, and the repo it watches.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -20,6 +19,6 @@ spec:
   syncPolicy:
     automated:
       prune: true      # delete what disappears from git
-      selfHeal: true   # undo changes made directly on the cluster
+      selfHeal: true   # undo cluster-side edits
     syncOptions:
       - CreateNamespace=true

@@ -2,7 +2,7 @@
 # Installs everything Part 3 needs: docker, kubectl and k3d.
 set -e
 
-# Re-run ourselves with sudo if we are not root
+# Re-run as root
 [ "$(id -u)" = "0" ] || exec sudo "$0" "$@"
 
 USER_NAME=${SUDO_USER:-vagrant}

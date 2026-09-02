@@ -15,7 +15,9 @@ deploying from it instead of from GitHub.
 
 ## Run
 
-GitLab needs **8 GB of RAM and 4 CPUs**, and 10–20 minutes to start.
+GitLab needs **8 GB of RAM and 4 CPUs**, and 10–20 minutes to start. The chart
+is pinned to **9.11.12** (GitLab 18.11.11): chart 10.x dropped the bundled
+PostgreSQL, Redis and object storage and requires them as external services.
 
 If your VM already has that headroom:
 

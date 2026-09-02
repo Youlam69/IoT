@@ -1,6 +1,5 @@
-# Same as p3/confs/application.yaml, but reading from the local GitLab.
-# The repo is reached through GitLab's in-cluster Service, so no DNS is needed.
-# The project must be public, so Argo CD needs no credentials for it.
+# Like p3's, but reading from the local GitLab through its in-cluster Service.
+# The project must be public, so no credentials are needed.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

@@ -1,4 +1,4 @@
-# The two namespaces required by Part 3.
+# The two namespaces Part 3 requires.
 apiVersion: v1
 kind: Namespace
 metadata:

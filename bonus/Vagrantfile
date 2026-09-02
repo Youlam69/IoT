@@ -1,8 +1,5 @@
-# Bonus: a bigger machine to host GitLab next to the Part 3 cluster.
+# Bonus: a bigger machine for GitLab, if your own VM lacks the headroom.
 #   aelyakouB  192.168.56.120  4 CPUs / 8 GB
-#
-# If your own VM already has 8 GB free you can skip this file and just run
-# p3/scripts/install.sh then bonus/scripts/setup.sh.
 
 LOGIN   = "aelyakou"
 BOX     = "bento/ubuntu-24.04"
