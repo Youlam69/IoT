@@ -24,6 +24,9 @@ metadata:
   namespace: gitlab
 spec:
   replicas: 1
+  # One PVC and one postgres process: a rolling update would deadlock waiting
+  # for a second pod that cannot lock the same PGDATA.
+  strategy: { type: Recreate }
   selector:
     matchLabels: { app: gitlab-postgresql }
   template:
@@ -32,7 +35,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:16-alpine
+          image: postgres:17-alpine
           # POSTGRES_USER is a superuser, so GitLab's migrations can create the
           # pg_trgm and btree_gist extensions they need.
           env:
