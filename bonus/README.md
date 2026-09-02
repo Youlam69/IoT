@@ -26,11 +26,14 @@ Like Part 3, this runs directly on your VM - no Vagrant:
 ./bonus/scripts/setup.sh
 ```
 
-`setup.sh` installs Helm, creates the cluster (this one also publishes port 80
-so the GitLab Ingress is reachable), the three namespaces, GitLab and Argo CD, then
-prints both passwords and the three manual steps left: create a **public**
-project `aelyakou-iot` under `root`, push `p3/app-repo/`'s manifests to it,
-and `kubectl apply -f bonus/confs/application.yaml`.
+`setup.sh` does the whole thing: installs Helm, creates the cluster (this one
+also publishes port 80 so the GitLab Ingress is reachable), the namespaces,
+GitLab and Argo CD. It then logs into GitLab's API with the root password,
+creates the **public** project `aelyakou-iot`, pushes `p3/app-repo/`'s
+manifests to it, and applies `bonus/confs/application.yaml` so Argo CD deploys
+from GitLab. Nothing is left to do by hand.
+
+If the API step fails it says so and prints the manual equivalent.
 
 ## Check
 
@@ -42,11 +45,12 @@ kubectl -n gitlab get pods
 
 GitLab: <http://gitlab.gitlab.local>, user `root`.
 
-Then run the same v1 → v2 demo as Part 3, pushing to GitLab instead:
+Then run the same v1 → v2 demo as Part 3, against GitLab instead of GitHub:
 
 ```sh
+git clone http://gitlab.gitlab.local/root/aelyakou-iot.git && cd aelyakou-iot
 sed -i 's|playground:v1|playground:v2|' deployment.yaml
-git commit -am "v2" && git push gitlab main
+git commit -am "v2" && git push
 kubectl -n dev get pods -w
 curl http://localhost:8888/
 ```
@@ -60,6 +64,9 @@ curl http://localhost:8888/
 
 ## Clean up
 
+It is the same cluster Part 3 uses, so Part 3's teardown removes GitLab with it:
+
 ```sh
-./bonus/scripts/teardown.sh
+./p3/scripts/teardown.sh
+sudo sed -i '/# iot-bonus/d' /etc/hosts
 ```

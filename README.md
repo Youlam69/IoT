@@ -30,7 +30,6 @@ Login used throughout: **`aelyakou`**.
 │   ├── app/                the application image (Go, multi-arch)
 │   └── app-repo/           manifests to push to the public GitHub repo
 └── bonus/                  Bonus — GitLab
-    ├── Vagrantfile
     ├── confs/              gitlab-values.yaml, application.yaml
     └── scripts/            setup.sh, credentials.sh, teardown.sh
 ```
@@ -50,7 +49,6 @@ during the defense.
 | --- | --- |
 | `p1` server / `p2` server | `192.168.56.110` |
 | `p1` worker | `192.168.56.111` |
-| `bonus` VM | `192.168.56.120` |
 | Argo CD UI (p3) | `https://localhost:8080` |
 | Application (p3) | `http://localhost:8888` |
 | GitLab (bonus) | `http://gitlab.gitlab.local` |

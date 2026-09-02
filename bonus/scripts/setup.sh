@@ -20,16 +20,15 @@ k3d cluster list | grep -q '^iot ' || k3d cluster create iot \
   --k3s-arg "--disable=metrics-server@server:*"
 kubectl config use-context k3d-iot
 
-echo "==> Creating the argocd, dev and gitlab namespaces"
+echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/p3/confs/namespaces.yaml"
-kubectl create namespace gitlab --dry-run=client -o yaml | kubectl apply -f -
 
 echo "==> Installing GitLab with Helm (go get a coffee)"
 helm repo add gitlab https://charts.gitlab.io/
-helm repo update gitlab
 # Pinned: chart 10.x dropped the bundled PostgreSQL, Redis and object storage
 # and requires them as external services. 9.11.12 is the last self-contained one.
-helm upgrade --install gitlab gitlab/gitlab --version 9.11.12 --namespace gitlab \
+helm upgrade --install gitlab gitlab/gitlab --version 9.11.12 \
+  --namespace gitlab --create-namespace \
   --values "$DIR/bonus/confs/gitlab-values.yaml" --timeout 30m --wait
 
 echo "==> Installing Argo CD"
@@ -46,21 +45,59 @@ echo "==> Adding gitlab.gitlab.local to /etc/hosts"
 sudo sed -i '/# iot-bonus/d' /etc/hosts
 echo "127.0.0.1 gitlab.gitlab.local # iot-bonus" | sudo tee -a /etc/hosts
 
+GITLAB=http://gitlab.gitlab.local
+PROJECT=aelyakou-iot
+
+echo "==> Waiting for the GitLab web interface"
+for _ in $(seq 90); do
+  curl -sfo /dev/null "$GITLAB/users/sign_in" && break
+  sleep 10
+done
+
+ROOT_PW=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password \
+  -o jsonpath='{.data.password}' | base64 -d)
+
+# An API token for root, from the root password
+TOKEN=$(curl -sf -X POST "$GITLAB/oauth/token" \
+  --data-urlencode "grant_type=password" \
+  --data-urlencode "username=root" \
+  --data-urlencode "password=$ROOT_PW" \
+  | sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p')
+if [ -z "$TOKEN" ]; then
+  echo "ERROR: could not get a GitLab API token. Do it by hand instead:" >&2
+  echo "  log into $GITLAB as root, create a PUBLIC project named $PROJECT," >&2
+  echo "  push $DIR/p3/app-repo/*.yaml to it, then apply bonus/confs/application.yaml" >&2
+  exit 1
+fi
+
+# Public, so Argo CD needs no credentials. Already-exists is fine.
+echo "==> Creating the public project $PROJECT"
+curl -sf -o /dev/null -X POST "$GITLAB/api/v4/projects" \
+  -H "Authorization: Bearer $TOKEN" \
+  --data-urlencode "name=$PROJECT" \
+  --data-urlencode "visibility=public" || true
+
+# Pushed from a scratch copy so p3/app-repo's own git state is left alone
+echo "==> Pushing the Part 3 manifests"
+TMP=$(mktemp -d)
+cp "$DIR/p3/app-repo/deployment.yaml" "$DIR/p3/app-repo/service.yaml" "$TMP/"
+git -C "$TMP" init -q -b main
+git -C "$TMP" add .
+git -C "$TMP" -c user.email=iot@localhost -c user.name=iot commit -qm "playground v1"
+git -C "$TMP" push -qf "http://oauth2:$TOKEN@gitlab.gitlab.local/root/$PROJECT.git" main
+rm -rf "$TMP"
+
+echo "==> Telling Argo CD to deploy it"
+kubectl apply -f "$DIR/bonus/confs/application.yaml"
+
 "$DIR/bonus/scripts/credentials.sh"
-
 cat <<MSG
-Now, once, by hand:
+GitLab:      $GITLAB/root/$PROJECT
+Argo CD:     https://localhost:8080
+Application: http://localhost:8888
 
-  1. Log into http://gitlab.gitlab.local as root and create a PUBLIC
-     project named aelyakou-iot.
-
-  2. Push the Part 3 manifests to it:
-       cd $DIR/p3/app-repo
-       git init -b main && git add deployment.yaml service.yaml
-       git commit -m "playground v1"
-       git remote add gitlab http://gitlab.gitlab.local/root/aelyakou-iot.git
-       git push -u gitlab main
-
-  3. Let Argo CD deploy it:
-       kubectl apply -f $DIR/bonus/confs/application.yaml
+For the v1 -> v2 demo:
+  git clone $GITLAB/root/$PROJECT.git && cd $PROJECT
+  sed -i 's|playground:v1|playground:v2|' deployment.yaml
+  git commit -am v2 && git push
 MSG
