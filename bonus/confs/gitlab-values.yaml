@@ -11,6 +11,15 @@ global:
       enabled: false
   kas:
     enabled: false
+  # The bundled MinIO image is amd64-only, so it cannot run on arm64. Nothing
+  # here needs object storage: git repos live in Gitaly, on a PVC.
+  minio:
+    enabled: false
+  appConfig:
+    artifacts: { enabled: false }
+    lfs: { enabled: false }
+    uploads: { enabled: false }
+    packages: { enabled: false }
 
 installCertmanager: false
 nginx-ingress:
@@ -37,3 +46,6 @@ gitlab:
   gitlab-shell:
     minReplicas: 1
     maxReplicas: 1
+  # Backup/rake pod, and it wants an object-storage secret we no longer have
+  toolbox:
+    enabled: false
