@@ -3,9 +3,12 @@ kind: Service
 metadata:
   name: wil-playground
 spec:
+  # NodePort 30888 is published by k3d as http://localhost:8888
+  type: NodePort
   selector:
     app: wil-playground
   ports:
     - name: http
       port: 8888
       targetPort: http
+      nodePort: 30888

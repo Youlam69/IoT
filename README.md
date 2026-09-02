@@ -26,7 +26,7 @@ Login used throughout: **`aelyakou`**.
 │   └── scripts/            server.sh, deploy.sh
 ├── p3/                     Part 3 — K3d and Argo CD
 │   ├── confs/              k3d-cluster, namespaces, argocd Application
-│   ├── scripts/            install.sh, setup.sh, port-forward.sh, …
+│   ├── scripts/            install.sh, setup.sh, credentials.sh, …
 │   └── app-repo/           manifests to push to the public GitHub repo
 └── bonus/                  Bonus — GitLab
     ├── Vagrantfile

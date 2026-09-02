@@ -21,7 +21,6 @@ deleted just as fast. K3d needs Docker; K3s does not.
 ./p3/scripts/install.sh    # docker, kubectl, k3d, helm, argocd (uses sudo)
 newgrp docker              # so docker works without sudo
 ./p3/scripts/setup.sh      # cluster + namespaces + Argo CD + the app
-./p3/scripts/port-forward.sh   # in a second terminal, Ctrl-C to stop
 ```
 
 ## Check
@@ -32,6 +31,10 @@ kubectl get pods -n dev    # wil-playground-...  1/1  Running
 curl http://localhost:8888/
 # {"status":"ok", "message": "v1"}
 ```
+
+Both are reachable directly, with no port-forward: `confs/k3d-cluster.yaml`
+publishes host ports 8080 and 8888 on k3d's load balancer, which proxies them
+to NodePort 30080 (`argocd-server`) and NodePort 30888 (`wil-playground`).
 
 Argo CD UI: <https://localhost:8080>, user `admin`, password from
 `./p3/scripts/credentials.sh`. The certificate is self-signed, so accept
@@ -68,10 +71,9 @@ Argo CD is set to check git every 30s instead of the default 3 minutes.
 | --- | --- |
 | `scripts/install.sh` | Installs every tool. Safe to re-run. |
 | `scripts/setup.sh` | Builds the whole cluster. |
-| `scripts/port-forward.sh` | Opens the UI and the app on localhost. |
 | `scripts/credentials.sh` | Prints the Argo CD password. |
 | `scripts/teardown.sh` | Deletes the cluster. |
-| `confs/k3d-cluster.yaml` | The k3d cluster definition. |
+| `confs/k3d-cluster.yaml` | The k3d cluster, and the two published host ports. |
 | `confs/namespaces.yaml` | The `argocd` and `dev` namespaces. |
 | `confs/application.yaml` | Which repo Argo CD watches and where it deploys. |
 | `confs/argocd-cm-patch.yaml` | The 30s sync interval. |
