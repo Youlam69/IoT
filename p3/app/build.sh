@@ -1,10 +1,10 @@
 #!/bin/bash
 # Builds both versions for amd64 + arm64 and pushes them to Docker Hub.
 #   docker login
-#   ./build.sh <dockerhub-username>
+#   ./build.sh [dockerhub-username]
 set -e
 
-HUB=${1:?usage: ./build.sh <dockerhub-username>}
+HUB=${1:-eldergriffi}
 cd "$(dirname "$0")"
 
 # The default builder cannot do multi-platform; this one can.

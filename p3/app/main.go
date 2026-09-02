@@ -1,4 +1,4 @@
-// A minimal stand-in for wil42/playground: same JSON, same port, but built
+// A minimal playground app: the JSON and port the subject expects, but built
 // for arm64 as well as amd64. The version string is injected at build time.
 package main
 

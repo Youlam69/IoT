@@ -4,7 +4,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: wil-playground
+  name: aelyakou-playground
   namespace: argocd
 spec:
   project: default
