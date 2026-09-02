@@ -5,7 +5,7 @@ set -e
 # Re-run as root
 [ "$(id -u)" = "0" ] || exec sudo "$0" "$@"
 
-USER_NAME=${SUDO_USER:-vagrant}
+USER_NAME=${SUDO_USER:-$(logname 2>/dev/null || id -un)}
 ARCH=$(dpkg --print-architecture)
 
 echo "==> Installing base packages"
@@ -27,6 +27,3 @@ fi
 echo "==> Installing k3d"
 command -v k3d >/dev/null || \
   curl -sL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-echo
-echo "Done. Run 'newgrp docker' (or log out and back in) so docker works without sudo."
