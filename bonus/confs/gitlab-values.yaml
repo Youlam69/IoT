@@ -1,6 +1,5 @@
 # GitLab chart values, trimmed for a single-node cluster: plain HTTP on
 # *.gitlab.local, k3s's Traefik as the ingress, and none of the optional parts.
-# PostgreSQL and Redis come from confs/database.yaml.
 global:
   hosts:
     domain: gitlab.local
@@ -12,11 +11,8 @@ global:
       enabled: false
   kas:
     enabled: false
-  gatewayApi:
-    enabled: false
-    installEnvoy: false
-    configureCertmanager: false
-  # No object storage: git repos live in Gitaly, on a PVC.
+  # The bundled MinIO image is amd64-only, so it cannot run on arm64. Nothing
+  # here needs object storage: git repos live in Gitaly, on a PVC.
   minio:
     enabled: false
   appConfig:
@@ -24,16 +20,6 @@ global:
     lfs: { enabled: false }
     uploads: { enabled: false }
     packages: { enabled: false }
-  psql:
-    host: gitlab-postgresql
-    port: 5432
-    database: gitlabhq_production
-    username: gitlab
-    password: { secret: gitlab-postgresql-password, key: password }
-  redis:
-    host: gitlab-redis
-    port: 6379
-    password: { enabled: false }
 
 installCertmanager: false
 nginx-ingress:
@@ -60,6 +46,6 @@ gitlab:
   gitlab-shell:
     minReplicas: 1
     maxReplicas: 1
-  # Backup/rake pod, and it wants an object-storage secret we do not have
+  # Backup/rake pod, and it wants an object-storage secret we no longer have
   toolbox:
     enabled: false

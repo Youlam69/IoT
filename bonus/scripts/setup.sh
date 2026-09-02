@@ -20,29 +20,20 @@ k3d cluster list | grep -q '^iot ' || k3d cluster create iot \
   --k3s-arg "--disable=metrics-server@server:*"
 kubectl config use-context k3d-iot
 
-echo "==> Creating the argocd, dev and gitlab namespaces"
+echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/p3/confs/namespaces.yaml"
-kubectl create namespace gitlab --dry-run=client -o yaml | kubectl apply -f -
 
-# The chart stopped bundling these in 10.0.0, so GitLab needs them up first
-echo "==> Installing PostgreSQL and Redis"
-kubectl apply -f "$DIR/bonus/confs/database.yaml"
-kubectl -n gitlab rollout status deployment/gitlab-postgresql --timeout=300s
-kubectl -n gitlab rollout status deployment/gitlab-redis --timeout=300s
-
-# Pinned to the version we tested; 10.3.1 is GitLab 19.3.1, the current release
 echo "==> Installing GitLab with Helm (go get a coffee)"
 helm repo add gitlab https://charts.gitlab.io/
-helm upgrade --install gitlab gitlab/gitlab --version 10.3.1 --namespace gitlab \
+# Pinned: chart 10.x dropped the bundled PostgreSQL, Redis and object storage
+# and requires them as external services. 9.11.12 is the last self-contained one.
+helm upgrade --install gitlab gitlab/gitlab --version 9.11.12 \
+  --namespace gitlab --create-namespace \
   --values "$DIR/bonus/confs/gitlab-values.yaml" --timeout 30m --wait
 
 echo "==> Installing Argo CD"
 kubectl apply --server-side --force-conflicts -n argocd \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Not used here: SSO, notifications and ApplicationSets
-kubectl -n argocd delete deployment --ignore-not-found argocd-dex-server \
-  argocd-notifications-controller argocd-applicationset-controller
 kubectl -n argocd patch configmap argocd-cm -p '{"data":{"timeout.reconciliation":"30s"}}'
 kubectl -n argocd patch svc argocd-server \
   -p '{"spec":{"type":"NodePort","ports":[{"name":"https","port":443,"nodePort":30080}]}}'
