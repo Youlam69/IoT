@@ -52,7 +52,7 @@ vagrant ssh -c "kubectl describe ingress apps-ingress"
 | --- | --- |
 | `scripts/server.sh` | Installs K3s and waits for Traefik. |
 | `scripts/deploy.sh` | Applies `confs/`, waits for the rollouts, prints the routes. |
-| `confs/app-*.yaml` | One file per app: a `Deployment` and a `Service`. |
+| `confs/apps.yaml` | The three `Deployment`s and their `Service`s. |
 | `confs/ingress.yaml` | The Host-based routing rules. |
 
 Each app is plain `nginx:alpine` that writes a small HTML page on start-up.

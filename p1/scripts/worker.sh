@@ -1,5 +1,6 @@
 #!/bin/bash
 # Installs K3s in agent (worker) mode and joins the server.
+# The K3s installer symlinks kubectl into /usr/local/bin, so it is available here too.
 set -e
 
 # The private-network interface, found from the IP Vagrant put on it: modern
@@ -17,11 +18,5 @@ curl -sfL https://get.k3s.io | \
   K3S_URL="https://$SERVER_IP:6443" \
   K3S_TOKEN="$(cat /shared/node-token)" \
   INSTALL_K3S_EXEC="agent --node-ip=$NODE_IP --flannel-iface=$IFACE" sh -
-
-echo "==> Installing kubectl"
-VERSION=$(curl -sL https://dl.k8s.io/release/stable.txt)
-curl -sLo /usr/local/bin/kubectl \
-  "https://dl.k8s.io/release/$VERSION/bin/linux/$(dpkg --print-architecture)/kubectl"
-chmod +x /usr/local/bin/kubectl
 
 echo "==> Worker joined. Check with: vagrant ssh aelyakouS -c 'kubectl get nodes'"

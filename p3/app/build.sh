@@ -8,8 +8,8 @@ HUB=${1:-eldergriffi}
 cd "$(dirname "$0")"
 
 # The default builder cannot do multi-platform; this one can.
-docker buildx inspect iot >/dev/null 2>&1 || docker buildx create --name iot
-docker buildx use iot
+docker buildx inspect multiarch >/dev/null 2>&1 || docker buildx create --name multiarch
+docker buildx use multiarch
 
 for v in v1 v2; do
   docker buildx build --platform linux/amd64,linux/arm64 \

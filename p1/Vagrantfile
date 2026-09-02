@@ -2,52 +2,37 @@
 #   aelyakouS   192.168.56.110   K3s server (controller)
 #   aelyakouSW  192.168.56.111   K3s agent  (worker)
 
-LOGIN       = "aelyakou"
-BOX         = "bento/ubuntu-24.04"
-SERVER_NAME = "#{LOGIN}S"
-WORKER_NAME = "#{LOGIN}SW"
-SERVER_IP   = "192.168.56.110"
-WORKER_IP   = "192.168.56.111"
-CPUS        = 1
-MEMORY      = 1024
+LOGIN     = "aelyakou"
+SERVER_IP = "192.168.56.110"
+
+MACHINES = {
+  "#{LOGIN}S"  => { ip: SERVER_IP,        script: "scripts/server.sh" },
+  "#{LOGIN}SW" => { ip: "192.168.56.111", script: "scripts/worker.sh" },
+}
 
 Vagrant.configure("2") do |config|
-  config.vm.box = BOX
+  config.vm.box = "bento/ubuntu-24.04"
   config.vm.box_check_update = false
 
   # Vagrant generates an SSH key per machine, so `vagrant ssh` needs no password
   config.ssh.insert_key = true
 
-  # Used to pass the K3s token from the server to the worker
+  # Carries the K3s token from the server to the worker
   config.vm.synced_folder "shared", "/shared", create: true
 
-  config.vm.define SERVER_NAME, primary: true do |server|
-    server.vm.hostname = SERVER_NAME
-    server.vm.network "private_network", ip: SERVER_IP
+  MACHINES.each do |name, m|
+    config.vm.define name do |machine|
+      machine.vm.hostname = name
+      machine.vm.network "private_network", ip: m[:ip]
 
-    server.vm.provider "virtualbox" do |vb|
-      vb.name   = SERVER_NAME
-      vb.cpus   = CPUS
-      vb.memory = MEMORY
+      machine.vm.provider "virtualbox" do |vb|
+        vb.name   = name
+        vb.cpus   = 1
+        vb.memory = 1024
+      end
+
+      machine.vm.provision "shell", path: m[:script],
+        env: { "NODE_IP" => m[:ip], "SERVER_IP" => SERVER_IP }
     end
-
-    server.vm.provision "shell",
-      path: "scripts/server.sh",
-      env: { "NODE_IP" => SERVER_IP }
-  end
-
-  config.vm.define WORKER_NAME do |worker|
-    worker.vm.hostname = WORKER_NAME
-    worker.vm.network "private_network", ip: WORKER_IP
-
-    worker.vm.provider "virtualbox" do |vb|
-      vb.name   = WORKER_NAME
-      vb.cpus   = CPUS
-      vb.memory = MEMORY
-    end
-
-    worker.vm.provision "shell",
-      path: "scripts/worker.sh",
-      env: { "NODE_IP" => WORKER_IP, "SERVER_IP" => SERVER_IP }
   end
 end

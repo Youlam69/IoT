@@ -1,0 +1,100 @@
+# The three applications the Ingress routes between.
+#
+# Each one is nginx serving a single-line page. The page prints $(hostname),
+# which inside a pod is the pod's own name - that is what makes app-two's
+# three replicas visible when you repeat a request.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-one
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: app-one }
+  template:
+    metadata:
+      labels: { app: app-one }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - { name: http, containerPort: 80 }
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "<h1>App One</h1><p>Pod: $(hostname)</p>" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-one
+spec:
+  selector: { app: app-one }
+  ports:
+    - { name: http, port: 80, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-two
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: app-two }
+  template:
+    metadata:
+      labels: { app: app-two }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - { name: http, containerPort: 80 }
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "<h1>App Two</h1><p>Pod: $(hostname)</p>" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-two
+spec:
+  selector: { app: app-two }
+  ports:
+    - { name: http, port: 80, targetPort: http }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-three
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: app-three }
+  template:
+    metadata:
+      labels: { app: app-three }
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27-alpine
+          ports:
+            - { name: http, containerPort: 80 }
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "<h1>App Three</h1><p>Pod: $(hostname)</p>" > /usr/share/nginx/html/index.html
+              nginx -g "daemon off;"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-three
+spec:
+  selector: { app: app-three }
+  ports:
+    - { name: http, port: 80, targetPort: http }

@@ -53,8 +53,9 @@ Two things worth explaining at the defense:
   SSH. The scripts do not hardcode the interface name — they look up whichever
   interface carries the machine's private IP, so the same script works on a box
   that names it `eth1` and on one that uses predictable names (`enp0s8`).
-- **kubectl is installed separately.** K3s embeds its own, but the subject
-  asks for kubectl, so the scripts download it to `/usr/local/bin`.
+- **kubectl.** The server downloads the real kubectl to `/usr/local/bin`, as
+  the subject asks. The worker does not need its own copy: the K3s installer
+  already symlinks `kubectl` there on both machines.
 
 ## Clean up
 

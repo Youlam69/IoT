@@ -4,7 +4,7 @@
 GitHub repository**, because `p3/confs/application.yaml` points at:
 
 ```
-repoURL: https://github.com/EldritchGriffin/aelyakou-iot.git
+repoURL: https://github.com/EldritchGriffin/aelyakou-iot
 path:    .
 ```
 
@@ -18,7 +18,7 @@ Create the public repo on GitHub, then push these files to its root:
 ```sh
 cd p3/app-repo
 git init -b main
-git add deployment.yaml service.yaml switch-version.sh README.md
+git add deployment.yaml service.yaml
 git commit -m "playground v1"
 git remote add origin git@github.com:EldritchGriffin/aelyakou-iot.git
 git push -u origin main
@@ -26,10 +26,16 @@ git push -u origin main
 
 Because `path: .`, Argo CD applies every manifest at the repo root.
 
+## Switching version
+
+```sh
+sed -i 's|playground:v1|playground:v2|' deployment.yaml
+git commit -am "v2" && git push
+```
+
 ## Files
 
 | File | Role |
 | --- | --- |
-| `deployment.yaml` | `wil42/playground` on port 8888. The image tag is what you change. |
-| `service.yaml` | ClusterIP service on 8888, the port-forward target. |
-| `switch-version.sh` | Toggles the tag between `v1` and `v2`, commits and pushes. |
+| `deployment.yaml` | `eldergriffi/playground` on port 8888. The image tag is what you change. |
+| `service.yaml` | NodePort 30888, published by k3d as `http://localhost:8888`. |

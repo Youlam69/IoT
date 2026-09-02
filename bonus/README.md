@@ -34,8 +34,8 @@ vagrant ssh
 /iot/bonus/scripts/setup.sh
 ```
 
-`setup.sh` creates the cluster (this one publishes ports 80 and 443 so the
-GitLab Ingress is reachable), the three namespaces, GitLab and Argo CD, then
+`setup.sh` installs Helm, creates the cluster (this one publishes ports 80 and
+443 so the GitLab Ingress is reachable), the three namespaces, GitLab and Argo CD, then
 prints both passwords and the three manual steps left: create a **public**
 project `aelyakou-iot` under `root`, push `p3/app-repo/`'s manifests to it,
 and `kubectl apply -f bonus/confs/application.yaml`.
@@ -63,10 +63,8 @@ curl http://localhost:8888/
 
 | File | Role |
 | --- | --- |
-| `confs/k3d-cluster.yaml` | Cluster with ports 80/443 published. |
 | `confs/gitlab-values.yaml` | Helm values, trimmed for a single node. |
 | `confs/application.yaml` | Argo CD reading from GitLab's in-cluster Service. |
-| `confs/gitlab-repo-credentials.yaml` | Only if the GitLab project is private. |
 
 ## Clean up
 

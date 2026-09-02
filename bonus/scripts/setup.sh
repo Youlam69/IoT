@@ -5,9 +5,20 @@ set -e
 
 DIR=$(cd "$(dirname "$0")/../.." && pwd)
 
-echo "==> Creating the k3d cluster (ports 80 and 443 published)"
-k3d cluster list | grep -q '^iot ' || \
-  k3d cluster create --config "$DIR/bonus/confs/k3d-cluster.yaml"
+echo "==> Installing helm"
+command -v helm >/dev/null || \
+  curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sudo bash
+
+# Same published ports as Part 3, plus port 80 for the GitLab Ingress:
+#   localhost      -> 80    -> Traefik -> GitLab
+#   localhost:8080 -> 30080 -> argocd-server       (the UI)
+#   localhost:8888 -> 30888 -> aelyakou-playground (the application)
+echo "==> Creating the k3d cluster"
+k3d cluster list | grep -q '^iot ' || k3d cluster create iot -a 1 \
+  -p "80:80@loadbalancer" \
+  -p "8080:30080@loadbalancer" \
+  -p "8888:30888@loadbalancer" \
+  --k3s-arg "--disable=metrics-server@server:*"
 kubectl config use-context k3d-iot
 
 echo "==> Creating the argocd, dev and gitlab namespaces"
@@ -17,25 +28,22 @@ kubectl create namespace gitlab --dry-run=client -o yaml | kubectl apply -f -
 echo "==> Installing GitLab with Helm (go get a coffee)"
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update gitlab
-helm upgrade --install gitlab gitlab/gitlab \
-  --namespace gitlab \
-  --values "$DIR/bonus/confs/gitlab-values.yaml" \
-  --timeout 30m --wait
+helm upgrade --install gitlab gitlab/gitlab --namespace gitlab \
+  --values "$DIR/bonus/confs/gitlab-values.yaml" --timeout 30m --wait
 
 echo "==> Installing Argo CD"
-# --server-side is required: the ApplicationSet CRD is ~340 KB, and a plain
-# client-side apply stores it in the last-applied-configuration annotation,
-# which the API server caps at 256 KB.
 kubectl apply --server-side --force-conflicts -n argocd \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-kubectl -n argocd patch configmap argocd-cm --patch-file "$DIR/p3/confs/argocd-cm-patch.yaml"
+kubectl -n argocd patch configmap argocd-cm -p '{"data":{"timeout.reconciliation":"30s"}}'
+kubectl -n argocd patch svc argocd-server \
+  -p '{"spec":{"type":"NodePort","ports":[{"name":"https","port":443,"nodePort":30080}]}}'
 kubectl -n argocd rollout restart deployment/argocd-repo-server \
   statefulset/argocd-application-controller
-kubectl -n argocd wait --for=condition=Available deployment --all --timeout=600s
+kubectl -n argocd wait --for=condition=Available deployment --all --timeout=900s
 
 echo "==> Adding gitlab.gitlab.local to /etc/hosts"
 sudo sed -i '/# iot-bonus/d' /etc/hosts
-echo "127.0.0.1 gitlab.gitlab.local registry.gitlab.local # iot-bonus" | sudo tee -a /etc/hosts
+echo "127.0.0.1 gitlab.gitlab.local # iot-bonus" | sudo tee -a /etc/hosts
 
 "$DIR/bonus/scripts/credentials.sh"
 

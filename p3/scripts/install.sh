@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs everything Part 3 needs: docker, kubectl, k3d, helm and the argocd CLI.
+# Installs everything Part 3 needs: docker, kubectl and k3d.
 set -e
 
 # Re-run ourselves with sudo if we are not root
@@ -27,17 +27,6 @@ fi
 echo "==> Installing k3d"
 command -v k3d >/dev/null || \
   curl -sL https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
-
-echo "==> Installing helm"
-command -v helm >/dev/null || \
-  curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-
-echo "==> Installing the argocd CLI"
-if ! command -v argocd >/dev/null; then
-  curl -sLo /usr/local/bin/argocd \
-    "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-$ARCH"
-  chmod +x /usr/local/bin/argocd
-fi
 
 echo
 echo "Done. Run 'newgrp docker' (or log out and back in) so docker works without sudo."

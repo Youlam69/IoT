@@ -22,25 +22,26 @@ Login used throughout: **`aelyakou`**.
 │   └── scripts/            server.sh, worker.sh
 ├── p2/                     Part 2 — K3s and three simple applications
 │   ├── Vagrantfile
-│   ├── confs/              app-one/two/three.yaml, ingress.yaml
+│   ├── confs/              apps.yaml, ingress.yaml
 │   └── scripts/            server.sh, deploy.sh
 ├── p3/                     Part 3 — K3d and Argo CD
-│   ├── confs/              k3d-cluster, namespaces, argocd Application
-│   ├── scripts/            install.sh, setup.sh, credentials.sh, …
+│   ├── confs/              namespaces.yaml, application.yaml
+│   ├── scripts/            install.sh, setup.sh, credentials.sh, teardown.sh
+│   ├── app/                the application image (Go, multi-arch)
 │   └── app-repo/           manifests to push to the public GitHub repo
 └── bonus/                  Bonus — GitLab
     ├── Vagrantfile
-    ├── confs/              k3d-cluster, gitlab values, Application
+    ├── confs/              gitlab-values.yaml, application.yaml
     └── scripts/            setup.sh, credentials.sh, teardown.sh
 ```
 
 ## Requirements
 
-- **Parts 1 & 2**: Vagrant ≥ 2.3 and VirtualBox on the host machine.
+- **Parts 1 & 2**: Vagrant and VirtualBox on the host machine.
 - **Part 3 & bonus**: run inside a Linux VM. `p3/scripts/install.sh` installs
-  everything else (Docker, kubectl, k3d, helm, the Argo CD CLI).
+  the rest (Docker, kubectl, k3d); the bonus adds Helm itself.
 
-Each part has its own README with the full walkthrough and the commands to show
+Each part has its own README with the walkthrough and the commands to show
 during the defense.
 
 ## Addresses

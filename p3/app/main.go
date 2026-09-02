@@ -13,7 +13,7 @@ var version = "v1"
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "{\"status\":\"ok\", \"message\": \"%s\"}\n", version)
+		fmt.Fprintf(w, `{"status":"ok", "message": "%s"}`+"\n", version)
 	})
 
 	log.Printf("playground %s listening on :8888", version)

@@ -1,11 +1,5 @@
+# Vagrant's per-machine state
 .vagrant/
-*.log
 
-node-token
-**/shared/
-
-kubeconfig
-*.kubeconfig
-.env
-
-README.md
+# p1: the server drops its K3s node token here for the worker to pick up
+p1/shared/
