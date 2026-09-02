@@ -9,7 +9,7 @@ echo "==> Private network: $NODE_IP on $IFACE"
 # Drop any token from a previous cluster
 rm -f /shared/node-token
 
-# Pin K3s to the private network. Part 1 needs no ingress or load balancer.
+# Pin K3s to the private network. Part 1 needs no ingress, load balancer or storage.
 echo "==> Installing K3s server"
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
   --node-ip=$NODE_IP \
@@ -17,7 +17,8 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
   --write-kubeconfig-mode 644 \
   --disable traefik \
   --disable metrics-server \
-  --disable servicelb" sh -
+  --disable servicelb \
+  --disable local-storage" sh -
 
 # The subject asks for kubectl explicitly
 echo "==> Installing kubectl"

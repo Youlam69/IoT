@@ -16,8 +16,9 @@ deploying from it instead of from GitHub.
 ## Run
 
 GitLab needs **8 GB of RAM and 4 CPUs**, and 10–20 minutes to start. The chart
-is pinned to **9.11.12** (GitLab 18.11.11): chart 10.x dropped the bundled
-PostgreSQL, Redis and object storage and requires them as external services.
+is pinned to **10.3.1** (GitLab 19.3.1). Chart 10 dropped the bundled
+PostgreSQL, Redis and object storage, so `confs/database.yaml` supplies
+PostgreSQL and Redis; object storage is switched off instead.
 
 Like Part 3, this runs directly on your VM - no Vagrant:
 
@@ -59,6 +60,7 @@ curl http://localhost:8888/
 
 | File | Role |
 | --- | --- |
+| `confs/database.yaml` | PostgreSQL and Redis for GitLab. |
 | `confs/gitlab-values.yaml` | Helm values, trimmed for a single node. |
 | `confs/application.yaml` | Argo CD reading from GitLab's in-cluster Service. |
 

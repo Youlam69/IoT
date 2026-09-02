@@ -31,7 +31,7 @@ Login used throughout: **`aelyakou`**.
 │   └── app-repo/           manifests to push to the public GitHub repo
 └── bonus/                  Bonus — GitLab
     ├── confs/              gitlab-values.yaml, application.yaml
-    └── scripts/            setup.sh, credentials.sh, teardown.sh
+    └── scripts/            setup.sh, credentials.sh
 ```
 
 ## Requirements

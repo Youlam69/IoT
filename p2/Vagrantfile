@@ -2,7 +2,7 @@
 #   Host: app1.com -> app-one, app2.com -> app-two, anything else -> app-three
 
 LOGIN       = "aelyakou"
-BOX         = "bento/ubuntu-24.04"
+BOX         = "bento/ubuntu-26.04"
 SERVER_NAME = "#{LOGIN}S"
 SERVER_IP   = "192.168.56.110"
 CPUS        = 1

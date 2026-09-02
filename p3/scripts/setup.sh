@@ -19,6 +19,10 @@ kubectl apply -f "$DIR/confs/namespaces.yaml"
 echo "==> Installing Argo CD"
 kubectl apply --server-side --force-conflicts -n argocd -f "$ARGOCD_MANIFEST"
 
+# Not used here: SSO, notifications and ApplicationSets
+kubectl -n argocd delete deployment --ignore-not-found argocd-dex-server \
+  argocd-notifications-controller argocd-applicationset-controller
+
 echo "==> Configuring Argo CD"
 # Check git every 30s instead of the default 3 minutes
 kubectl -n argocd patch configmap argocd-cm -p '{"data":{"timeout.reconciliation":"30s"}}'
