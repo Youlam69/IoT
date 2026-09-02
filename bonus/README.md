@@ -19,25 +19,15 @@ GitLab needs **8 GB of RAM and 4 CPUs**, and 10–20 minutes to start. The chart
 is pinned to **9.11.12** (GitLab 18.11.11): chart 10.x dropped the bundled
 PostgreSQL, Redis and object storage and requires them as external services.
 
-If your VM already has that headroom:
+Like Part 3, this runs directly on your VM - no Vagrant:
 
 ```sh
 ./p3/scripts/install.sh
 ./bonus/scripts/setup.sh
 ```
 
-If it does not, use the bigger machine defined here (`aelyakouB`,
-`192.168.56.120`):
-
-```sh
-cd bonus
-vagrant up
-vagrant ssh
-/iot/bonus/scripts/setup.sh
-```
-
-`setup.sh` installs Helm, creates the cluster (this one publishes ports 80 and
-443 so the GitLab Ingress is reachable), the three namespaces, GitLab and Argo CD, then
+`setup.sh` installs Helm, creates the cluster (this one also publishes port 80
+so the GitLab Ingress is reachable), the three namespaces, GitLab and Argo CD, then
 prints both passwords and the three manual steps left: create a **public**
 project `aelyakou-iot` under `root`, push `p3/app-repo/`'s manifests to it,
 and `kubectl apply -f bonus/confs/application.yaml`.

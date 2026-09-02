@@ -11,7 +11,9 @@ command -v helm >/dev/null || \
 
 # Published by k3d: localhost -> GitLab, :8080 -> Argo CD, :8888 -> the app
 echo "==> Creating the k3d cluster"
-k3d cluster list | grep -q '^iot ' || k3d cluster create iot -a 1 \
+# Single node on purpose: every extra node pulls its own copy of GitLab's
+# ~5 GB of images, which is enough to fill the VM's disk.
+k3d cluster list | grep -q '^iot ' || k3d cluster create iot \
   -p "80:80@loadbalancer" \
   -p "8080:30080@loadbalancer" \
   -p "8888:30888@loadbalancer" \
