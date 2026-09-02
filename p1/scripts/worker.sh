@@ -1,9 +1,8 @@
 #!/bin/bash
-# Installs K3s in agent mode and joins the server.
-# No kubectl install here: the K3s installer symlinks its own.
+# K3s in agent mode, joining the server.
 set -e
 
-# The interface holding the private IP (eth1 or enp0s8, depending on the box)
+# The interface carrying the private IP
 IFACE=$(ip -o -4 addr show | awk -v ip="$NODE_IP" '$4 ~ "^"ip"/" {print $2; exit}')
 echo "==> Private network: $NODE_IP on $IFACE"
 

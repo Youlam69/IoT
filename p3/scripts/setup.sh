@@ -5,7 +5,7 @@ set -e
 DIR=$(dirname "$0")/..
 ARGOCD_MANIFEST=https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-# Published by k3d: localhost:8080 -> Argo CD, localhost:8888 -> the app
+# Published by k3d: 8080 -> Argo CD, 8888 -> the app
 echo "==> Creating the k3d cluster"
 k3d cluster list | grep -q '^iot ' || k3d cluster create iot \
   -p "8080:30080@loadbalancer" -p "8888:30888@loadbalancer" \
@@ -15,11 +15,10 @@ kubectl config use-context k3d-iot
 echo "==> Creating the argocd and dev namespaces"
 kubectl apply -f "$DIR/confs/namespaces.yaml"
 
-# --server-side is required: the ApplicationSet CRD is too big to apply client-side
 echo "==> Installing Argo CD"
 kubectl apply --server-side --force-conflicts -n argocd -f "$ARGOCD_MANIFEST"
 
-# Not used here: SSO, notifications and ApplicationSets
+# Unused here: SSO, notifications, ApplicationSets
 kubectl -n argocd delete deployment --ignore-not-found argocd-dex-server \
   argocd-notifications-controller argocd-applicationset-controller
 

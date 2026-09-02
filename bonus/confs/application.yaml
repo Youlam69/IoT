@@ -1,5 +1,4 @@
 # Like p3's, but reading from the local GitLab through its in-cluster Service.
-# The project must be public, so no credentials are needed.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

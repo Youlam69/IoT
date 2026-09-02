@@ -1,5 +1,4 @@
-# GitLab chart values, trimmed for a single-node cluster: plain HTTP on
-# *.gitlab.local, k3s's Traefik as the ingress, and none of the optional parts.
+# GitLab chart values, trimmed for a single-node cluster.
 global:
   hosts:
     domain: gitlab.local
@@ -11,8 +10,7 @@ global:
       enabled: false
   kas:
     enabled: false
-  # The bundled MinIO image is amd64-only, so it cannot run on arm64. Nothing
-  # here needs object storage: git repos live in Gitaly, on a PVC.
+  # amd64-only image, and nothing here needs object storage
   minio:
     enabled: false
   appConfig:
@@ -46,6 +44,6 @@ gitlab:
   gitlab-shell:
     minReplicas: 1
     maxReplicas: 1
-  # Backup/rake pod, and it wants an object-storage secret we no longer have
+  # Backup/rake pod; it wants an object-storage secret we do not have
   toolbox:
     enabled: false

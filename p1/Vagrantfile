@@ -1,6 +1,4 @@
-# Part 1: two machines forming one K3s cluster.
-#   aelyakouS   192.168.56.110   K3s server (controller)
-#   aelyakouSW  192.168.56.111   K3s agent  (worker)
+# Two machines forming one K3s cluster.
 
 LOGIN     = "aelyakou"
 SERVER_IP = "192.168.56.110"
@@ -14,7 +12,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/ubuntu-26.04"
   config.vm.box_check_update = false
 
-  # Passwordless SSH: Vagrant inserts a key per machine
+  # Passwordless SSH
   config.ssh.insert_key = true
 
   # Carries the K3s token from the server to the worker

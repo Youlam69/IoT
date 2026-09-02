@@ -1,4 +1,4 @@
-# Change the image tag below and push to redeploy.
+# The app Argo CD deploys. Change the tag and push to redeploy.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,11 +15,10 @@ spec:
     spec:
       containers:
         - name: playground
-          image: eldergriffi/playground:v2
+          image: eldergriffi/playground:v1
           ports:
             - name: http
               containerPort: 8888
-          # Ready only once the app is listening
           readinessProbe:
             httpGet:
               path: /

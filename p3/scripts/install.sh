@@ -1,5 +1,5 @@
 #!/bin/bash
-# Installs everything Part 3 needs: docker, kubectl and k3d.
+# Installs what Part 3 needs: docker, kubectl and k3d.
 set -e
 
 # Re-run as root

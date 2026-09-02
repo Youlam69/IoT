@@ -1,5 +1,4 @@
-# Part 2: one machine running K3s and three apps behind a Traefik Ingress.
-#   Host: app1.com -> app-one, app2.com -> app-two, anything else -> app-three
+# One machine running K3s and three apps behind a Traefik Ingress.
 
 LOGIN       = "aelyakou"
 BOX         = "bento/ubuntu-26.04"

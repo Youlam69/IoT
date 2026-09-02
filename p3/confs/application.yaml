@@ -18,7 +18,7 @@ spec:
 
   syncPolicy:
     automated:
-      prune: true      # delete what disappears from git
-      selfHeal: true   # undo cluster-side edits
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true

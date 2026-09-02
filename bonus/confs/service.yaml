@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: aelyakou-playground
 spec:
-  # k3d publishes this as http://localhost:8888
   type: NodePort
   selector:
     app: aelyakou-playground

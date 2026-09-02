@@ -1,5 +1,3 @@
-# app1.com -> app-one, app2.com -> app-two, anything else -> app-three.
-# The last rule has no host, so it matches everything.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

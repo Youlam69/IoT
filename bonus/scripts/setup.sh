@@ -1,6 +1,6 @@
 #!/bin/bash
-# Part 3 on top of a GitLab running in the cluster. Run p3/scripts/install.sh
-# first. GitLab needs ~8 GB of RAM and 10-20 minutes.
+# Part 3, sourced from a GitLab in the cluster. Run p3/scripts/install.sh first.
+# GitLab needs ~8 GB of RAM and 10-20 minutes.
 set -e
 
 DIR=$(cd "$(dirname "$0")/../.." && pwd)
@@ -9,10 +9,9 @@ echo "==> Installing helm"
 command -v helm >/dev/null || \
   curl -sL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | sudo bash
 
-# Published by k3d: localhost -> GitLab, :8080 -> Argo CD, :8888 -> the app
+# Published by k3d: 80 -> GitLab, 8080 -> Argo CD, 8888 -> the app.
+# Single node: every extra node pulls its own copy of GitLab's images.
 echo "==> Creating the k3d cluster"
-# Single node on purpose: every extra node pulls its own copy of GitLab's
-# ~5 GB of images, which is enough to fill the VM's disk.
 k3d cluster list | grep -q '^iot ' || k3d cluster create iot \
   -p "80:80@loadbalancer" \
   -p "8080:30080@loadbalancer" \
@@ -25,8 +24,7 @@ kubectl apply -f "$DIR/p3/confs/namespaces.yaml"
 
 echo "==> Installing GitLab with Helm (go get a coffee)"
 helm repo add gitlab https://charts.gitlab.io/
-# Pinned: chart 10.x dropped the bundled PostgreSQL, Redis and object storage
-# and requires them as external services. 9.11.12 is the last self-contained one.
+# Pinned: chart 10.x needs an external PostgreSQL and Redis
 helm upgrade --install gitlab gitlab/gitlab --version 9.11.12 \
   --namespace gitlab --create-namespace \
   --values "$DIR/bonus/confs/gitlab-values.yaml" --timeout 30m --wait
@@ -57,7 +55,7 @@ done
 ROOT_PW=$(kubectl -n gitlab get secret gitlab-gitlab-initial-root-password \
   -o jsonpath='{.data.password}' | base64 -d)
 
-# An API token for root, from the root password
+# An API token for root
 TOKEN=$(curl -sf -X POST "$GITLAB/oauth/token" \
   --data-urlencode "grant_type=password" \
   --data-urlencode "username=root" \
@@ -66,7 +64,8 @@ TOKEN=$(curl -sf -X POST "$GITLAB/oauth/token" \
 if [ -z "$TOKEN" ]; then
   echo "ERROR: could not get a GitLab API token. Do it by hand instead:" >&2
   echo "  log into $GITLAB as root, create a PUBLIC project named $PROJECT," >&2
-  echo "  push $DIR/p3/app-repo/*.yaml to it, then apply bonus/confs/application.yaml" >&2
+  echo "  push $DIR/bonus/confs/{deployment,service}.yaml to it, then apply" >&2
+  echo "  bonus/confs/application.yaml" >&2
   exit 1
 fi
 
@@ -77,10 +76,10 @@ curl -sf -o /dev/null -X POST "$GITLAB/api/v4/projects" \
   --data-urlencode "name=$PROJECT" \
   --data-urlencode "visibility=public" || true
 
-# Pushed from a scratch copy so p3/app-repo's own git state is left alone
+# Scratch copy, so confs/ is left untouched
 echo "==> Pushing the Part 3 manifests"
 TMP=$(mktemp -d)
-cp "$DIR/p3/app-repo/deployment.yaml" "$DIR/p3/app-repo/service.yaml" "$TMP/"
+cp "$DIR/bonus/confs/deployment.yaml" "$DIR/bonus/confs/service.yaml" "$TMP/"
 git -C "$TMP" init -q -b main
 git -C "$TMP" add .
 git -C "$TMP" -c user.email=iot@localhost -c user.name=iot commit -qm "playground v1"

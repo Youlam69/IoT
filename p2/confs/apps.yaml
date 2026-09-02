@@ -1,5 +1,4 @@
-# The three applications. Each is nginx serving a one-line page; $(hostname)
-# is the pod name, which is what makes app-two's replicas visible.
+# The three applications: nginx serving a one-line page naming its pod.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
